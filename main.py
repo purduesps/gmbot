@@ -23,5 +23,11 @@ def spstest():
     return 'spstest'
 
 def parseData(data):
-    # parse the data string into a dictionary
+    s = str(data)
+    s = s[2:len(s)-1]
+    arr = s.split(',')
+    parsed = {}
+    for keyval in arr:
+        idx = keyval.find(':')
+        parsed[keyval[:idx]] = keyval[idx+1:len(keyval)]
     return parsed
