@@ -15,7 +15,7 @@ def root():
 def spstest():
     request.form = parseData(request.data)
     if request.method == 'POST':
-        if request.data['sender_type'] == 'user':
+        if request.form['sender_type'] == 'user':
             r = requests.post(URL, data={
                     'bot_id':BOTID,
                     'text':'response'
