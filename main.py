@@ -25,10 +25,13 @@ def spstest():
     if request.method == 'POST':
         if shouldRespond(request):
             if isGreeting(request.form['text']):
-                r = requests.post(URL, data={
-                        'bot_id':botid,
-                        'text':'Hi ' + request.form['name']
-                        })
+                response = 'Hi ' + request.form['name']
+            elif isFratGreeting(request.form['text']):
+                response = 'Asuh brah'
+            r = requests.post(URL, data={
+                    'bot_id':botid,
+                    'text':response
+                    })
     return 'spstest'
 
 #
@@ -44,10 +47,13 @@ def spsbot():
     if request.method == 'POST':
         if shouldRespond(request):
             if isGreeting(request.form['text']):
-                r = requests.post(URL, data={
-                        'bot_id':botid,
-                        'text':'Hi ' + request.form['name']
-                        })
+                response = 'Hi ' + request.form['name']
+            elif isFratGreeting(request.form['text']):
+                response = 'Asuh brah'
+            r = requests.post(URL, data={
+                    'bot_id':botid,
+                    'text':response
+                    })
     return 'spsbot'
 
 #
@@ -70,8 +76,11 @@ def shouldRespond(request):
         and (BOTNAME in request.form['text']))
 
 def isGreeting(msg):
-    greetings = ['hi','hey','hello','sup']
+    greetings = ['hi','hey','hello','sup','hai','wazzup','howdy','yo']
     for g in greetings:
         if g in msg:
             return True
     return False
+
+def isFratGreeting(msg):
+    return 'asuh' in msg
