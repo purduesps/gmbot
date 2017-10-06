@@ -1,5 +1,6 @@
 from flask import Flask, request
 import requests
+import random
 
 TESTBOTID = '8c470e6280d30e292d42f64a91'
 SPSBOTID = 'caefd5601535a6e6924f38efb8'
@@ -28,6 +29,10 @@ def spstest():
                 response = 'Hi ' + request.form['name']
             elif isFratGreeting(request.form['text']):
                 response = 'Asuh brah'
+            elif request.form['text'] == 'good bot':
+                response = random.choice((':)','<3'))
+            elif request.form['text'] == 'bad bot':
+                response = 'bad person'
             r = requests.post(URL, data={
                     'bot_id':botid,
                     'text':response
@@ -72,8 +77,10 @@ def parseData(data):
     return parsed
 
 def shouldRespond(request):
-    return ((request.form['sender_type'] == 'user')
-        and (BOTNAME in request.form['text']))
+    return (request.form['sender_type'] == 'user')
+        and ((BOTNAME in request.form['text'])
+        or (request.form['text'] == 'good bot')
+        or (request.form['text'] == 'bad bot'))
 
 def isGreeting(msg):
     greetings = ['hi','hey','hello','sup','hai','wazzup','howdy','yo']
