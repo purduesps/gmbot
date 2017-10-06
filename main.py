@@ -55,6 +55,10 @@ def spsbot():
                 response = 'Hi ' + request.form['name']
             elif isFratGreeting(request.form['text']):
                 response = 'Asuh brah'
+            elif request.form['text'] == 'good bot':
+                response = random.choice((':)','<3'))
+            elif request.form['text'] == 'bad bot':
+                response = 'bad person'
             r = requests.post(URL, data={
                     'bot_id':botid,
                     'text':response
