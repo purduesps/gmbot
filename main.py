@@ -77,10 +77,10 @@ def parseData(data):
     return parsed
 
 def shouldRespond(request):
-    return (request.form['sender_type'] == 'user')
+    return ((request.form['sender_type'] == 'user')
         and ((BOTNAME in request.form['text'])
         or (request.form['text'] == 'good bot')
-        or (request.form['text'] == 'bad bot'))
+        or (request.form['text'] == 'bad bot')))
 
 def isGreeting(msg):
     greetings = ['hi','hey','hello','sup','hai','wazzup','howdy','yo']
