@@ -23,6 +23,7 @@ def root():
 #
 @app.route('/spstest', methods=['GET','POST'])
 def spstest():
+    global loungeStatus, wellStatus
     if request.method == 'POST':
         botid = TESTBOTID
         request.form = parseData(request.data)
@@ -53,6 +54,7 @@ def spstest():
 #
 @app.route('/spsbot', methods=['GET','POST'])
 def spsbot():
+    global loungeStatus, wellStatus
     if request.method == 'POST':
         botid = SPSBOTID
         request.form = parseData(request.data)
