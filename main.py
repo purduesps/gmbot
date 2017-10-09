@@ -82,7 +82,7 @@ def lounge():
     global loungeStatus
     if loungeStatus == 'open':
         loungeStatus = 'closed'
-    if loungeStatus == 'closed':
+    elif loungeStatus == 'closed':
         loungeStatus = 'open'
     return 'lounge'
 
@@ -94,7 +94,7 @@ def well():
     global wellStatus
     if wellStatus == 'open':
         wellStatus = 'closed'
-    if wellStatus == 'closed':
+    elif wellStatus == 'closed':
         wellStatus = 'open'
     return 'well'
 
