@@ -7,6 +7,9 @@ SPSBOTID = 'caefd5601535a6e6924f38efb8'
 BOTNAME = 'spsbot'
 URL = 'https://api.groupme.com/v3/bots/post'
 
+loungeStatus = 'closed'
+wellStatus = 'closed'
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -20,10 +23,10 @@ def root():
 #
 @app.route('/spstest', methods=['GET','POST'])
 def spstest():
-    botid = TESTBOTID
-    request.form = parseData(request.data)
-    request.form['text'] = request.form['text'].lower()
     if request.method == 'POST':
+        botid = TESTBOTID
+        request.form = parseData(request.data)
+        request.form['text'] = request.form['text'].lower()
         if shouldRespond(request):
             if isGreeting(request.form['text']):
                 response = 'Hi ' + request.form['name']
@@ -33,6 +36,10 @@ def spstest():
                 response = random.choice((':)','<3'))
             elif request.form['text'] == 'bad bot':
                 response = 'bad person'
+            elif isLoungeRequest(request.form['text']):
+                response = 'The lounge is ' + loungeStatus
+            elif isWellRequest(request.form['text']):
+                response = 'The well is ' + wellStatus
             r = requests.post(URL, data={
                     'bot_id':botid,
                     'text':response
@@ -46,10 +53,10 @@ def spstest():
 #
 @app.route('/spsbot', methods=['GET','POST'])
 def spsbot():
-    botid = SPSBOTID
-    request.form = parseData(request.data)
-    request.form['text'] = request.form['text'].lower()
     if request.method == 'POST':
+        botid = SPSBOTID
+        request.form = parseData(request.data)
+        request.form['text'] = request.form['text'].lower()
         if shouldRespond(request):
             if isGreeting(request.form['text']):
                 response = 'Hi ' + request.form['name']
@@ -64,6 +71,26 @@ def spsbot():
                     'text':response
                     })
     return 'spsbot'
+
+#
+# handle ping for lounge status
+#
+@app.route('/spsbot/lounge', methods=['GET','POST'])
+def lounge():
+    if loungeStatus == 'open':
+        loungeStatus = 'closed'
+    if loungeStatus == 'closed':
+        loungeStatus = 'open'
+
+#
+# handle ping for well status
+#
+@app.route('/spsbot/well', methods=['GET','POST'])
+def well():
+    if wellStatus == 'open':
+        wellStatus = 'closed'
+    if wellStatus == 'closed':
+        wellStatus = 'open'
 
 #
 # support functions
@@ -95,3 +122,9 @@ def isGreeting(msg):
 
 def isFratGreeting(msg):
     return 'asuh' in msg
+
+def isLoungeRequest(msg):
+    return 'lounge' in msg
+
+def isWellRequest(msg):
+    return 'well' in msg
