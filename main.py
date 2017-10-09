@@ -77,20 +77,24 @@ def spsbot():
 #
 @app.route('/spsbot/lounge', methods=['GET','POST'])
 def lounge():
+    global loungeStatus
     if loungeStatus == 'open':
         loungeStatus = 'closed'
     if loungeStatus == 'closed':
         loungeStatus = 'open'
+    return 'lounge'
 
 #
 # handle ping for well status
 #
 @app.route('/spsbot/well', methods=['GET','POST'])
 def well():
+    global wellStatus
     if wellStatus == 'open':
         wellStatus = 'closed'
     if wellStatus == 'closed':
         wellStatus = 'open'
+    return 'well'
 
 #
 # support functions
