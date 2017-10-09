@@ -1,6 +1,7 @@
 from flask import Flask, request
 import requests
 import random
+import re
 
 TESTBOTID = '8c470e6280d30e292d42f64a91'
 SPSBOTID = 'caefd5601535a6e6924f38efb8'
@@ -41,10 +42,13 @@ def spstest():
                 response = 'The lounge is ' + loungeStatus
             elif isWellRequest(request.form['text']):
                 response = 'The well is ' + wellStatus
-            r = requests.post(URL, data={
-                    'bot_id':botid,
-                    'text':response
-                    })
+            try:
+                r = requests.post(URL, data={
+                        'bot_id':botid,
+                        'text':response
+                        })
+            except NameError:
+                return "spstest didn't say anything"
     return 'spstest'
 
 #
@@ -68,10 +72,13 @@ def spsbot():
                 response = random.choice((':)','<3'))
             elif request.form['text'] == 'bad bot':
                 response = 'bad person'
-            r = requests.post(URL, data={
-                    'bot_id':botid,
-                    'text':response
-                    })
+            try:
+                r = requests.post(URL, data={
+                        'bot_id':botid,
+                        'text':response
+                        })
+            except NameError:
+                return "spsbot didn't say anything"
     return 'spsbot'
 
 #
@@ -115,22 +122,23 @@ def parseData(data):
 
 def shouldRespond(request):
     return ((request.form['sender_type'] == 'user')
-        and ((BOTNAME in request.form['text'])
+        and ((re.search(r'\b'+BOTNAME+r'\b', request.form['text']) != None)
         or (request.form['text'] == 'good bot')
         or (request.form['text'] == 'bad bot')))
 
 def isGreeting(msg):
-    greetings = ['hi','hey','hello','sup','hai','wazzup','howdy','yo']
+    greetings = ['hi','hey','hello','sup','hai',
+            'wazzup','wassup','howdy','yo']
     for g in greetings:
-        if g in msg:
+        if re.search(r'\b'+g+r'\b', msg) != None:
             return True
     return False
 
 def isFratGreeting(msg):
-    return 'asuh' in msg
+    return re.search(r'\basuh\b', msg) != None)
 
 def isLoungeRequest(msg):
-    return 'lounge' in msg
+    return re.search(r'\blounge\b', msg) != None)
 
 def isWellRequest(msg):
-    return 'well' in msg
+    return re.search(r'\bwell\b', msg) != None)
