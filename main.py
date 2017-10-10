@@ -2,6 +2,7 @@ from flask import Flask, request
 import requests
 import random
 import re
+import numpy as np
 
 TESTBOTID = '8c470e6280d30e292d42f64a91'
 SPSBOTID = 'caefd5601535a6e6924f38efb8'
@@ -30,6 +31,7 @@ def spstest():
         request.form = parseData(request.data)
         request.form['text'] = request.form['text'].lower()
         if shouldRespond(request):
+            print('should respond to '+request.form['text'])
             if isGreeting(request.form['text']):
                 response = 'Hi ' + request.form['name']
             elif isFratGreeting(request.form['text']):
@@ -112,15 +114,26 @@ def well():
 def parseData(data):
     s = str(data)
     s = s[3:len(s)-2]
-    s = s.replace('"','')
+    parsed = {'text':findText(s)}
+    s = s.replace('"text":"'+parsed['text']+'"','')
     arr = s.split(',')
-    parsed = {}
     for keyval in arr:
+        keyval = keyval.replace('"','')
         idx = keyval.find(':')
         parsed[keyval[:idx]] = keyval[idx+1:len(keyval)]
     return parsed
 
+def findText(string):
+    idx = string.find('"text":')
+    idx += len('"text":')
+    string = string[idx:]
+    idx = string.find('","')
+    string = string[1:idx]
+    return string
+
 def shouldRespond(request):
+    print(request.form['sender_type'])
+    print(re.search(r'\b'+BOTNAME+r'\b', request.form['text']))
     return ((request.form['sender_type'] == 'user')
         and ((re.search(r'\b'+BOTNAME+r'\b', request.form['text']) != None)
         or (request.form['text'] == 'good bot')
@@ -135,10 +148,10 @@ def isGreeting(msg):
     return False
 
 def isFratGreeting(msg):
-    return re.search(r'\basuh\b', msg) != None)
+    return re.search(r'\basuh\b', msg) != None
 
 def isLoungeRequest(msg):
-    return re.search(r'\blounge\b', msg) != None)
+    return re.search(r'\blounge\b', msg) != None
 
 def isWellRequest(msg):
-    return re.search(r'\bwell\b', msg) != None)
+    return re.search(r'\bwell\b', msg) != None
