@@ -3,6 +3,7 @@ import requests
 import random
 import re
 import numpy as np
+from json import loads
 
 TESTBOTID = '8c470e6280d30e292d42f64a91'
 SPSBOTID = 'caefd5601535a6e6924f38efb8'
@@ -89,10 +90,17 @@ def spsbot():
 @app.route('/spsbot/lounge', methods=['GET','POST'])
 def lounge():
     global loungeStatus
-    if loungeStatus == 'open':
-        loungeStatus = 'closed'
-    elif loungeStatus == 'closed':
-        loungeStatus = 'open'
+    if request.method == 'POST':
+        data = loads(request.get_data().decode('utf-8'))
+        if 'lounge' in data:
+            loungeStatus = ['closed','open'][data['lounge']]
+        else:
+            loungeStatus = 'closed'
+    else:
+        if loungeStatus == 'open':
+            loungeStatus = 'closed'
+        elif loungeStatus == 'closed':
+            loungeStatus = 'open'
     return 'lounge'
 
 #
