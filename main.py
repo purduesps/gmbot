@@ -7,8 +7,8 @@ from json import loads
 
 class bot:
 
-    def __init__(self, name):
-        self.NAME = name
+    def __init__(self, app, name):
+        self.BOTNAME = name
         self.TESTBOTID = '8c470e6280d30e292d42f64a91'
         self.SPSBOTID = 'caefd5601535a6e6924f38efb8'
         self.URL = 'https://api.groupme.com/v3/bots/post'
@@ -16,10 +16,14 @@ class bot:
         self.loungeStatus = 'closed'
         self.wellStatus = 'closed'
 
-        self.app = Flask(__name__)
+        self.app = app
+        self.app.add_url_rule('/','root',self.root)
+        self.app.add_url_rule('/spstest','spstest',self.spstest,methods=['GET','POST'])
+        self.app.add_url_rule('/spsbot','spsbot',self.spsbot,methods=['GET','POST'])
+        self.app.add_url_rule('/spsbot/lounge','lounge',self.lounge,methods=['GET','POST'])
+        self.app.add_url_rule('/spsbot/well','well',self.well,methods=['GET','POST'])
 
-    @app.route('/')
-    def root():
+    def root(self):
         return 'Hello world'
 
     #
@@ -27,28 +31,26 @@ class bot:
     # group: bot testing
     # test things here before deploying to sps member group
     #
-    @app.route('/spstest', methods=['GET','POST'])
-    def spstest():
+    def spstest(self):
         if request.method == 'POST':
             botid = self.TESTBOTID
-            request.form = parseData(request.data)
+            request.form = self.parseData(request.data)
             request.form['text'] = request.form['text'].lower()
-            if shouldRespond(request):
-                print('should respond to '+request.form['text'])
-                if isGreeting(request.form['text']):
+            if self.shouldRespond(request):
+                if self.isGreeting(request.form['text']):
                     response = 'Hi ' + request.form['name']
-                elif isFratGreeting(request.form['text']):
+                elif self.isFratGreeting(request.form['text']):
                     response = 'Asuh brah'
                 elif request.form['text'] == 'good bot':
                     response = random.choice((':)','<3'))
                 elif request.form['text'] == 'bad bot':
                     response = 'bad person'
-                elif isLoungeRequest(request.form['text']):
+                elif self.isLoungeRequest(request.form['text']):
                     response = 'The lounge is ' + loungeStatus
-                elif isWellRequest(request.form['text']):
+                elif self.isWellRequest(request.form['text']):
                     response = 'The well is ' + wellStatus
                 try:
-                    r = requests.post(URL, data={
+                    r = requests.post(self.URL, data={
                             'bot_id':botid,
                             'text':response
                             })
@@ -61,16 +63,15 @@ class bot:
     # group: Official SPS Members 2017-2018
     # make sure stuff works before you put it here
     #
-    @app.route('/spsbot', methods=['GET','POST'])
-    def spsbot():
+    def spsbot(self):
         if request.method == 'POST':
             botid = self.SPSBOTID
-            request.form = parseData(request.data)
+            request.form = self.parseData(request.data)
             request.form['text'] = request.form['text'].lower()
-            if shouldRespond(request):
-                if isGreeting(request.form['text']):
+            if self.shouldRespond(request):
+                if self.isGreeting(request.form['text']):
                     response = 'Hi ' + request.form['name']
-                elif isFratGreeting(request.form['text']):
+                elif self.isFratGreeting(request.form['text']):
                     response = 'Asuh brah'
                 elif request.form['text'] == 'good bot':
                     response = random.choice((':)','<3'))
@@ -88,8 +89,7 @@ class bot:
     #
     # handle ping for lounge status
     #
-    @app.route('/spsbot/lounge', methods=['GET','POST'])
-    def lounge():
+    def lounge(self):
         if request.method == 'POST':
             data = loads(request.get_data().decode('utf-8'))
             if 'lounge' in data:
@@ -106,8 +106,7 @@ class bot:
     #
     # handle ping for well status
     #
-    @app.route('/spsbot/well', methods=['GET','POST'])
-    def well():
+    def well(self):
         if self.wellStatus == 'open':
             self.wellStatus = 'closed'
         elif self.wellStatus == 'closed':
@@ -118,10 +117,10 @@ class bot:
     # support functions
     #
 
-    def parseData(data):
+    def parseData(self,data):
         s = str(data)
         s = s[3:len(s)-2]
-        parsed = {'text':findText(s)}
+        parsed = {'text':self.findText(s)}
         s = s.replace('"text":"'+parsed['text']+'"','')
         arr = s.split(',')
         for keyval in arr:
@@ -130,7 +129,7 @@ class bot:
             parsed[keyval[:idx]] = keyval[idx+1:len(keyval)]
         return parsed
 
-    def findText(string):
+    def findText(self,string):
         idx = string.find('"text":')
         idx += len('"text":')
         string = string[idx:]
@@ -138,15 +137,13 @@ class bot:
         string = string[1:idx]
         return string
 
-    def shouldRespond(request):
-        print(request.form['sender_type'])
-        print(re.search(r'\b'+BOTNAME+r'\b', request.form['text']))
+    def shouldRespond(self,request):
         return ((request.form['sender_type'] == 'user')
-            and ((re.search(r'\b'+BOTNAME+r'\b', request.form['text']) != None)
+            and ((re.search(r'\b'+self.BOTNAME+r'\b', request.form['text']) != None)
             or (request.form['text'] == 'good bot')
             or (request.form['text'] == 'bad bot')))
 
-    def isGreeting(msg):
+    def isGreeting(self,msg):
         greetings = ['hi','hey','hello','sup','hai',
                 'wazzup','wassup','howdy','yo']
         for g in greetings:
@@ -154,13 +151,14 @@ class bot:
                 return True
         return False
 
-    def isFratGreeting(msg):
+    def isFratGreeting(self,msg):
         return re.search(r'\basuh\b', msg) != None
 
-    def isLoungeRequest(msg):
+    def isLoungeRequest(self,msg):
         return re.search(r'\blounge\b', msg) != None
 
-    def isWellRequest(msg):
+    def isWellRequest(self,msg):
         return re.search(r'\bwell\b', msg) != None
 
-bot('spsbot')
+app = Flask(__name__)
+bot(app, 'spsbot')
