@@ -46,9 +46,9 @@ class bot:
                 elif request.form['text'] == 'bad bot':
                     response = 'bad person'
                 elif self.isLoungeRequest(request.form['text']):
-                    response = 'The lounge is ' + loungeStatus
+                    response = 'The lounge is ' + self.loungeStatus
                 elif self.isWellRequest(request.form['text']):
-                    response = 'The well is ' + wellStatus
+                    response = 'The well is ' + self.wellStatus
                 try:
                     r = requests.post(self.URL, data={
                             'bot_id':botid,
