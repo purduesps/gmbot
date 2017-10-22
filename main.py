@@ -37,7 +37,13 @@ class bot:
             request.form = self.parseData(request.data)
             request.form['text'] = request.form['text'].lower()
             if self.shouldRespond(request):
-                if self.isGreeting(request.form['text']):
+                if re.search(r'\bspsboy\b', request.form['text']) != None:
+                    response = 'Did you just assume my gender?'
+                    requests.post(self.URL, data={
+                            'bot_id':botid,
+                            'text':'I identify as an Apache web server'
+                            })
+                elif self.isGreeting(request.form['text']):
                     response = 'Hi ' + request.form['name']
                 elif self.isFratGreeting(request.form['text']):
                     response = 'Asuh brah'
@@ -141,7 +147,8 @@ class bot:
         return ((request.form['sender_type'] == 'user')
             and ((re.search(r'\b'+self.BOTNAME+r'\b', request.form['text']) != None)
             or (request.form['text'] == 'good bot')
-            or (request.form['text'] == 'bad bot')))
+            or (request.form['text'] == 'bad bot')
+            or (re.search(r'\bspsboy\b', request.form['text']) != None)))
 
     def isGreeting(self,msg):
         greetings = ['hi','hey','hello','sup','hai',
