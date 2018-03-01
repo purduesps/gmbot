@@ -1,5 +1,7 @@
 import requests
 from time import time, sleep
+import wiringpi
+from json import dumps
 
 
 class DoorWatcher(object):
@@ -9,24 +11,31 @@ class DoorWatcher(object):
         self.last_update = time()
         self.room = room
         self.rate = rate
+        wiringpi.wiringPiSetup()
+        wiringpi.pinMode(16,0) # pin 16 is input for sensor
+#        wiringpi.pinMode(15,1) # i maybe fried pin 15 so no more probe
 
     def checkroom(self):
-        # Code to read the GPIO sensor here
-        self.state = True
+        # switch is open when door is open
+        self.state = not wiringpi.digitalRead(16)
         self.last_update = time()
 
     def run(self):
         while True:
+            print({self.room: self.state})
             self.checkroom()
-            r = requests.post(self.url, data={self.room: self.state,
-                                              "Last updated": self.last_update})
+            wiringpi.digitalWrite(16,self.state)
+            r = requests.post(self.url, data=dumps({self.room: self.state,
+                                              "Last updated": self.last_update}))
             if not 200 == r.status_code:
+                print(r.status_code)
                 raise ValueError("STATUS CODE OF NOT 200 RETURNED")
 
             print("Status Sent ;)")
             sleep(self.rate)
 
 
-if __name__ == "__main__":
-    loungebot = DoorWatcher("nglotz.ddns.net", "lounge", 5)
-    loungebot.run()
+#if __name__ == "__main__":
+print("the program ran")
+loungebot = DoorWatcher("nglotz.ddns.net", "lounge", 5)
+loungebot.run()
