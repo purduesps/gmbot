@@ -2,6 +2,7 @@ import requests
 from time import time, sleep
 import wiringpi
 from json import dumps
+import random
 
 
 class DoorWatcher(object):
@@ -22,6 +23,7 @@ class DoorWatcher(object):
 
     def run(self):
         while True:
+            self.rate = random.randint(30,120)
             print({self.room: self.state})
             self.checkroom()
             wiringpi.digitalWrite(16,self.state)
