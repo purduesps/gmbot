@@ -17,6 +17,6 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP" > /home/pi/ip.txt
 fi
 
-sudo nohup /usr/bin/python3 /home/pi/Documents/gmbot/doorwatcher.py > /home/pi/doorlog.txt
+sudo /usr/bin/python3 /home/pi/Documents/gmbot/doorwatcher.py > /home/pi/doorlog.txt & disown
 
 exit 0

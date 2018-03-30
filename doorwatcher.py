@@ -6,8 +6,10 @@ from json import dumps
 import random
 
 class DoorWatcher(object):
-    def __init__(self, domain, room, rate):
+    def __init__(self, domain, room, rate,logfile="/home/pi/doorlog.txt"):
         self.url = "http://{}/spsbot/{}".format(domain, room)
+        print("url",self.url)
+        self.logfile = logfile
         self.state = True
         self.last_update = time()
         self.room = room
@@ -24,17 +26,21 @@ class DoorWatcher(object):
     def run(self):
         while True:
             self.rate = random.randint(30,120)
-            print(datetime.datetime.now(), {self.room: self.state})
             self.checkroom()
             wiringpi.digitalWrite(16,self.state)
+            print('about to send request')
             r = requests.post(self.url, data=dumps({self.room: self.state,
                                               "Last updated": self.last_update}))
-            if not 200 == r.status_code:
+            with open(self.logfile,"a+") as fh:
                 print(r.status_code)
-                raise ValueError("STATUS CODE OF NOT 200 RETURNED")
 
-            print("Status Sent ;)")
-            sleep(self.rate)
+                if not 200 == r.status_code:
+                    fh.write("{},{},{}".format(datetime.datetime.now(), {self.room: self.state},"Status Failed ;("))
+                else:
+                    fh.write("{},{},{}".format(datetime.datetime.now(), {self.room: self.state},"Status Sent ;)"))
+                fh.write("\n")
+
+                sleep(self.rate)
 
 
 #if __name__ == "__main__":
